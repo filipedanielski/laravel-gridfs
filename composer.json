@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Filipedanielski\\Gridfs": "src/"
+            "Filipedanielski\\Gridfs\\": "src/"
         }
     }
 }
