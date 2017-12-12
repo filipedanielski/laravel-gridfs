@@ -2,6 +2,8 @@
 
 namespace Filipedanielski\Gridfs;
 
+use ZipStream\ZipStream;
+
 trait Gridfs
 {
     /*
@@ -78,6 +80,21 @@ trait Gridfs
         return $this->prepareDownload($contents, $metadata);
     }
 
+    public function downloadZip($cursor){
+        $bucket = $this->connectToBucket();
+        
+        $zip = new ZipStream('download.zip');
+
+        foreach($cursor->toArray() as $file){
+            $stream = $bucket->openDownloadStream($file->_id);
+            $metadata = $bucket->getFileDocumentForStream($stream);
+
+            $zip->addFileFromStream($metadata->filename, $stream);
+        }
+
+        return $zip->finish();
+    }
+
     public function prepareDownload($contents, $metadata){
         return response($contents)
             ->withHeaders([
@@ -102,6 +119,12 @@ trait Gridfs
         $bucket = $this->connectToBucket();
 
         return $bucket->findOne($filter, $options);
+    }
+
+    public function find($filter = [], array $options = []){
+        $bucket = $this->connectToBucket();
+        
+        return $bucket->find($filter, $options);
     }
 
     /*

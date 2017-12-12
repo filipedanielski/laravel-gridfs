@@ -14,6 +14,20 @@ class UploadTest extends TestCase
         $file = new UploadedFile($path, $name, 'image/png', filesize($path), null, true);
 
         $photo = new Photo;
-        $photo->upload($file);
+        $photo->upload($file, [], $name);
+
+        $this->assertDatabaseHas('photos.files', ['filename' => $name]);
+
+        unlink($path);
+    }
+
+    
+    public function testZipDownload(){
+        $photo = new Photo();
+        $photos = $photo->find(["length" => 842]);
+
+        $download = $photo->downloadZip($photos);
+
+        $this->assertTrue(preg_match('/(error|notice)/i', $download) === 0);
     }
 }
