@@ -11,7 +11,7 @@ trait Gridfs
     | Upload functions
     |--------------------------------------------------------------------------
     */
-    public function upload($file, $metadata = [], $filename = null){
+    private function upload($file, $metadata = [], $filename = null){
         $bucket = $this->connectToBucket();
 
         $source = fopen($file->path(), 'rb');
@@ -28,7 +28,7 @@ trait Gridfs
     | Download functions
     |--------------------------------------------------------------------------
     */
-    public function download($id, $revision = null){
+    private function download($id, $revision = null){
         $bucket = $this->connectToBucket();
 
         $stream = $bucket->openDownloadStream($id);
@@ -49,7 +49,7 @@ trait Gridfs
         return $this->prepareDownload($contents, $metadata);
     }
 
-    public function downloadByFilename($filename, $revision = null){
+    private function downloadByFilename($filename, $revision = null){
         $bucket = $this->connectToBucket();
 
         if($revision != null){
@@ -67,7 +67,7 @@ trait Gridfs
         return $this->prepareDownload($contents, $metadata);
     }
 
-    public function downloadOriginal($filename){
+    private function downloadOriginal($filename){
         $bucket = $this->connectToBucket();
 
         $stream = $bucket->openDownloadStreamByName(
@@ -80,22 +80,36 @@ trait Gridfs
         return $this->prepareDownload($contents, $metadata);
     }
 
-    public function downloadZip($cursor){
+    private function downloadZip($cursor){
         $bucket = $this->connectToBucket();
         
-        $zip = new ZipStream('download.zip');
+        list($tmp, $zipstream) = $this->getTmpFileStream();
+        $zip = new ZipStream(null, array(
+            ZipStream::OPTION_OUTPUT_STREAM => $zipstream
+        ));
 
-        foreach($cursor->toArray() as $file){
+        $files = $cursor->toArray();
+
+        foreach($files as $file){
             $stream = $bucket->openDownloadStream($file->_id);
             $metadata = $bucket->getFileDocumentForStream($stream);
 
             $zip->addFileFromStream($metadata->filename, $stream);
         }
 
-        return $zip->finish();
+        $zip->finish();
+        fclose($zipstream);
     }
 
-    public function prepareDownload($contents, $metadata){
+    protected function getTmpFileStream()
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'zipstream');
+        $stream = fopen($tmp, 'w+');
+
+        return array($tmp, $stream);
+    }
+
+    protected function prepareDownload($contents, $metadata){
         return response($contents)
             ->withHeaders([
                 'Content-Type'              => 'application/octet-stream',
@@ -115,13 +129,13 @@ trait Gridfs
     | Search functions
     |--------------------------------------------------------------------------
     */
-    public function findOne($filter = [], array $options = []){
+    private function findOne($filter = [], array $options = []){
         $bucket = $this->connectToBucket();
 
         return $bucket->findOne($filter, $options);
     }
 
-    public function find($filter = [], array $options = []){
+    private function find($filter = [], array $options = []){
         $bucket = $this->connectToBucket();
         
         return $bucket->find($filter, $options);
@@ -132,7 +146,7 @@ trait Gridfs
     | Connection and configuration functions
     |--------------------------------------------------------------------------
     */
-    public function connectToBucket(){
+    private function connectToBucket(){
         return \Illuminate\Support\Facades\DB::connection(
             $this->connection ?: $this->app['config']['database.default']
         )
@@ -142,7 +156,23 @@ trait Gridfs
         );
     }
 
-    public function getBucketName(){
+    private function getBucketName(){
         return $this->bucket ?: "gridfs";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Magic methods
+    |--------------------------------------------------------------------------
+    */
+    public function __call($name, $arguments)
+    {
+        return call_user_func_array([$this, $name], $arguments);
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        $instance = (new static);
+        return call_user_func_array([$instance, $name], $arguments);
     }
 }
