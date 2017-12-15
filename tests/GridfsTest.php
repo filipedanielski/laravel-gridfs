@@ -2,7 +2,7 @@
 
 use Illuminate\Http\UploadedFile;
 
-class UploadTest extends TestCase
+class GridfsTest extends TestCase
 {
     public static function tearDownAfterClass(){
         $bucket = Photo::connectToBucket();
@@ -26,15 +26,23 @@ class UploadTest extends TestCase
     }
 
     public function testDownload(){
-        $photo = Photo::findOne(["length" => 842]);
+        $photo = Photo::first();
+
+        $download = $photo->download();
+
+        $this->assertTrue(preg_match('/(error|notice)/i', $download) === 0);
+    }
+
+    public function testDownloadById(){
+        $photo = Photo::searchOne(["length" => 842]);
 
         $download = Photo::download($photo->_id);
 
         $this->assertTrue(preg_match('/(error|notice)/i', $download) === 0);
     }
-    
+
     public function testZipDownload(){
-        $photos = Photo::find(["length" => 842]);
+        $photos = Photo::search(["length" => 842]);
 
         $download = Photo::downloadZip($photos);
 

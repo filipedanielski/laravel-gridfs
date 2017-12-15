@@ -28,10 +28,10 @@ trait Gridfs
     | Download functions
     |--------------------------------------------------------------------------
     */
-    private function download($id, $revision = null){
+    private function download($id = null, $revision = null){
         $bucket = $this->connectToBucket();
 
-        $stream = $bucket->openDownloadStream($id);
+        $stream = $bucket->openDownloadStream(($id != null) ? $id : (new \MongoDB\BSON\ObjectId($this->_id)));
         $metadata = $bucket->getFileDocumentForStream($stream);
 
         if($revision != null){
@@ -129,13 +129,13 @@ trait Gridfs
     | Search functions
     |--------------------------------------------------------------------------
     */
-    private function findOne($filter = [], array $options = []){
+    private function searchOne($filter = [], array $options = []){
         $bucket = $this->connectToBucket();
 
         return $bucket->findOne($filter, $options);
     }
 
-    private function find($filter = [], array $options = []){
+    private function search($filter = [], array $options = []){
         $bucket = $this->connectToBucket();
         
         return $bucket->find($filter, $options);
@@ -165,14 +165,22 @@ trait Gridfs
     | Magic methods
     |--------------------------------------------------------------------------
     */
-    public function __call($name, $arguments)
+    public function __call($method, $parameters)
     {
-        return call_user_func_array([$this, $name], $arguments);
+        $reflection = new \ReflectionClass('Filipedanielski\Gridfs\Gridfs');
+        $trait_functions = $reflection->getMethods();
+
+        foreach($trait_functions as $function){
+            if ($method == $function->name){
+                return call_user_func_array([$this, $method], $parameters);
+            }
+        }
+        return parent::__call($method, $parameters);
     }
 
-    public static function __callStatic($name, $arguments)
+    public static function __callStatic($method, $parameters)
     {
         $instance = (new static);
-        return call_user_func_array([$instance, $name], $arguments);
+        return call_user_func_array([$instance, $method], $parameters);
     }
 }

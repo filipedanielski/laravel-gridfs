@@ -10,5 +10,4 @@ class Photo extends Eloquent
     protected $connection = 'mongodb';
     protected $collection = 'photos.files';
     protected $bucket = 'photos';
-    protected static $unguarded = true;
 }
