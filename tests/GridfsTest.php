@@ -48,4 +48,12 @@ class GridfsTest extends TestCase
 
         $this->assertTrue(preg_match('/(error|notice)/i', $download) === 0);
     }
+
+    public function testRemove(){
+        $photo = Photo::searchOne(["length" => 842]);
+
+        Photo::remove($photo->_id);
+
+        $this->assertDatabaseMissing('photos.files', ['filename' => $photo->filename]);
+    }
 }
