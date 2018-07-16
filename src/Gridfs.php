@@ -28,7 +28,7 @@ trait Gridfs
     | Download functions
     |--------------------------------------------------------------------------
     */
-    private function download($id = null, $revision = null){
+    private function getFileContents($id = null, $revision = null){
         $bucket = $this->connectToBucket();
 
         $stream = $bucket->openDownloadStream(($id != null) ? $id : (new \MongoDB\BSON\ObjectId($this->_id)));
@@ -44,7 +44,11 @@ trait Gridfs
             $metadata = $bucket->getFileDocumentForStream($stream);
         }
 
-        $contents = stream_get_contents($stream);
+        return stream_get_contents($stream);
+    }
+
+    private function download($id = null, $revision = null){
+        $contents = getFileContents($id, $revision);
 
         return $this->prepareDownload($contents, $metadata);
     }
