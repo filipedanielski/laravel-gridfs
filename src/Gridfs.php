@@ -28,29 +28,38 @@ trait Gridfs
     | Download functions
     |--------------------------------------------------------------------------
     */
-    private function getFileContents($id = null, $revision = null){
+    private function download($id = null, $revision = null){
         $bucket = $this->connectToBucket();
 
-        $stream = $bucket->openDownloadStream(($id != null) ? $id : (new \MongoDB\BSON\ObjectId($this->_id)));
-        $metadata = $bucket->getFileDocumentForStream($stream);
-
+        $stream = $this->getFileStream($bucket, $id);
+        $metadata = $this->getFileMetadata($bucket, $stream);
+        
         if($revision != null){
             unset($stream);
-            $stream = $bucket->openDownloadStreamByName(
-                $metadata->filename, ['revision' => $revision]
-            );
+            $stream = $this->getFileByRevision($bucket, $metadata->filename, $revision);
 
             unset($metadata);
-            $metadata = $bucket->getFileDocumentForStream($stream);
+            $metadata = $this->getFileMetadata($bucket, $stream);
+        }
+
+        $contents = stream_get_contents($stream);
+
+        return $this->prepareDownload($contents, $metadata);
+    }
+
+    private function downloadWithoutHeaders($id = null, $revision = null){
+        $bucket = $this->connectToBucket();
+
+        $stream = $this->getFileStream($bucket, $id);
+        
+        if($revision != null){
+            $metadata = $this->getFileMetadata($bucket, $stream);
+
+            unset($stream);
+            $stream = $this->getFileByRevision($bucket, $metadata->filename, $revision);
         }
 
         return stream_get_contents($stream);
-    }
-
-    private function download($id = null, $revision = null){
-        $contents = getFileContents($id, $revision);
-
-        return $this->prepareDownload($contents, $metadata);
     }
 
     private function downloadByFilename($filename, $revision = null){
@@ -84,6 +93,11 @@ trait Gridfs
         return $this->prepareDownload($contents, $metadata);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | .zip download functions
+    |--------------------------------------------------------------------------
+    */
     private function downloadZip($cursor){
         $bucket = $this->connectToBucket();
         
@@ -111,6 +125,29 @@ trait Gridfs
         $stream = fopen($tmp, 'w+');
 
         return array($tmp, $stream);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prepare functions
+    |--------------------------------------------------------------------------
+    */
+    private function getFileStream($bucket, $id = null){
+        $stream = $bucket->openDownloadStream(
+            ($id != null) ? $id : (new \MongoDB\BSON\ObjectId($this->_id))
+        );
+
+        return $stream;
+    }
+
+    private function getFileMetadata($bucket, $stream){
+        return $bucket->getFileDocumentForStream($stream);
+    }
+
+    private function getFileByRevision($bucket, $filename, $revision){
+        return $bucket->openDownloadStreamByName(
+            $filename, ['revision' => $revision]
+        );
     }
 
     protected function prepareDownload($contents, $metadata){
