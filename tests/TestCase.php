@@ -1,11 +1,12 @@
 <?php
 
 class TestCase extends Orchestra\Testbench\TestCase
-{   
+{
     /**
      * Get package providers.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param \Illuminate\Foundation\Application $app
+     *
      * @return array
      */
     protected function getPackageProviders($app)
@@ -18,7 +19,8 @@ class TestCase extends Orchestra\Testbench\TestCase
     /**
      * Define environment setup.
      *
-     * @param  Illuminate\Foundation\Application    $app
+     * @param Illuminate\Foundation\Application $app
+     *
      * @return void
      */
     protected function getEnvironmentSetUp($app)
@@ -28,7 +30,7 @@ class TestCase extends Orchestra\Testbench\TestCase
         $config = require 'config/database.php';
         $app['config']->set('app.key', 'ZsZewWyUJ5FsKp9lMwv4tYbNlegQilM7');
         $app['config']->set('database.default', 'mongodb');
-        $app['config']->set('database.connections.mongodb', $config['connections']['mongodb']);        
+        $app['config']->set('database.connections.mongodb', $config['connections']['mongodb']);
         $app['config']->set('cache.driver', 'array');
     }
 }
