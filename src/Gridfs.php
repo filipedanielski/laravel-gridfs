@@ -11,7 +11,8 @@ trait Gridfs
     | Upload functions
     |--------------------------------------------------------------------------
     */
-    private function upload($file, $metadata = [], $filename = null){
+    private function upload($file, $metadata = [], $filename = null)
+    {
         $bucket = $this->connectToBucket();
 
         $source = fopen($file->path(), 'rb');
@@ -19,7 +20,7 @@ trait Gridfs
         return $bucket->uploadFromStream(
             $filename ?: $file->hashName(),
             $source,
-            ($metadata != []) ? ['metadata' => $metadata ] : []
+            ($metadata != []) ? ['metadata' => $metadata] : []
         );
     }
 
@@ -28,13 +29,14 @@ trait Gridfs
     | Download functions
     |--------------------------------------------------------------------------
     */
-    private function download($id = null, $revision = null){
+    private function download($id = null, $revision = null)
+    {
         $bucket = $this->connectToBucket();
 
         $stream = $this->getFileStream($bucket, $id);
         $metadata = $this->getFileMetadata($bucket, $stream);
-        
-        if($revision != null){
+
+        if ($revision != null) {
             unset($stream);
             $stream = $this->getFileByRevision($bucket, $metadata->filename, $revision);
 
@@ -47,12 +49,13 @@ trait Gridfs
         return $this->prepareDownload($contents, $metadata);
     }
 
-    private function downloadWithoutHeaders($id = null, $revision = null){
+    private function downloadWithoutHeaders($id = null, $revision = null)
+    {
         $bucket = $this->connectToBucket();
 
         $stream = $this->getFileStream($bucket, $id);
-        
-        if($revision != null){
+
+        if ($revision != null) {
             $metadata = $this->getFileMetadata($bucket, $stream);
 
             unset($stream);
@@ -62,10 +65,11 @@ trait Gridfs
         return stream_get_contents($stream);
     }
 
-    private function downloadByFilename($filename, $revision = null){
+    private function downloadByFilename($filename, $revision = null)
+    {
         $bucket = $this->connectToBucket();
 
-        if($revision != null){
+        if ($revision != null) {
             $stream = $bucket->openDownloadStreamByName($filename);
             $metadata = $bucket->getFileDocumentForStream($stream);
         } else {
@@ -80,7 +84,8 @@ trait Gridfs
         return $this->prepareDownload($contents, $metadata);
     }
 
-    private function downloadOriginal($filename){
+    private function downloadOriginal($filename)
+    {
         $bucket = $this->connectToBucket();
 
         $stream = $bucket->openDownloadStreamByName(
@@ -98,17 +103,18 @@ trait Gridfs
     | .zip download functions
     |--------------------------------------------------------------------------
     */
-    private function downloadZip($cursor){
+    private function downloadZip($cursor)
+    {
         $bucket = $this->connectToBucket();
-        
+
         list($tmp, $zipstream) = $this->getTmpFileStream();
-        $zip = new ZipStream(null, array(
-            ZipStream::OPTION_OUTPUT_STREAM => $zipstream
-        ));
+        $zip = new ZipStream(null, [
+            ZipStream::OPTION_OUTPUT_STREAM => $zipstream,
+        ]);
 
         $files = $cursor->toArray();
 
-        foreach($files as $file){
+        foreach ($files as $file) {
             $stream = $bucket->openDownloadStream($file->_id);
             $metadata = $bucket->getFileDocumentForStream($stream);
 
@@ -124,7 +130,7 @@ trait Gridfs
         $tmp = tempnam(sys_get_temp_dir(), 'zipstream');
         $stream = fopen($tmp, 'w+');
 
-        return array($tmp, $stream);
+        return [$tmp, $stream];
     }
 
     /*
@@ -132,7 +138,8 @@ trait Gridfs
     | Prepare functions
     |--------------------------------------------------------------------------
     */
-    private function getFileStream($bucket, $id = null){
+    private function getFileStream($bucket, $id = null)
+    {
         $stream = $bucket->openDownloadStream(
             ($id != null) ? $id : (new \MongoDB\BSON\ObjectId($this->_id))
         );
@@ -140,27 +147,30 @@ trait Gridfs
         return $stream;
     }
 
-    private function getFileMetadata($bucket, $stream){
+    private function getFileMetadata($bucket, $stream)
+    {
         return $bucket->getFileDocumentForStream($stream);
     }
 
-    private function getFileByRevision($bucket, $filename, $revision){
+    private function getFileByRevision($bucket, $filename, $revision)
+    {
         return $bucket->openDownloadStreamByName(
             $filename, ['revision' => $revision]
         );
     }
 
-    protected function prepareDownload($contents, $metadata){
+    protected function prepareDownload($contents, $metadata)
+    {
         return response($contents)
             ->withHeaders([
                 'Content-Type'              => 'application/octet-stream',
-                'Content-Disposition'       => "attachment; filename=" . $metadata->filename,
+                'Content-Disposition'       => 'attachment; filename='.$metadata->filename,
                 'Content-Transfer-Encoding' => 'Binary',
                 'Content-Description'       => 'File Transfer',
                 'Pragma'                    => 'public',
                 'Expires'                   => '0',
                 'Cache-Control'             => 'must-revalidate',
-                'Content-Length'            => "{$metadata->length}"
+                'Content-Length'            => "{$metadata->length}",
             ]
         );
     }
@@ -170,7 +180,8 @@ trait Gridfs
     | Delete functions
     |--------------------------------------------------------------------------
     */
-    private function remove($id = null){
+    private function remove($id = null)
+    {
         $bucket = $this->connectToBucket();
 
         return $bucket->delete(($id != null) ? $id : (new \MongoDB\BSON\ObjectId($this->_id)));
@@ -181,15 +192,17 @@ trait Gridfs
     | Search functions
     |--------------------------------------------------------------------------
     */
-    private function searchOne($filter = [], array $options = []){
+    private function searchOne($filter = [], array $options = [])
+    {
         $bucket = $this->connectToBucket();
 
         return $bucket->findOne($filter, $options);
     }
 
-    private function search($filter = [], array $options = []){
+    private function search($filter = [], array $options = [])
+    {
         $bucket = $this->connectToBucket();
-        
+
         return $bucket->find($filter, $options);
     }
 
@@ -198,7 +211,8 @@ trait Gridfs
     | Connection and configuration functions
     |--------------------------------------------------------------------------
     */
-    private function connectToBucket(){
+    private function connectToBucket()
+    {
         return \Illuminate\Support\Facades\DB::connection(
             $this->connection ?: $this->app['config']['database.default']
         )
@@ -208,8 +222,9 @@ trait Gridfs
         );
     }
 
-    private function getBucketName(){
-        return $this->bucket ?: "gridfs";
+    private function getBucketName()
+    {
+        return $this->bucket ?: 'gridfs';
     }
 
     /*
@@ -222,17 +237,19 @@ trait Gridfs
         $reflection = new \ReflectionClass('Filipedanielski\Gridfs\Gridfs');
         $trait_functions = $reflection->getMethods();
 
-        foreach($trait_functions as $function){
-            if ($method == $function->name){
+        foreach ($trait_functions as $function) {
+            if ($method == $function->name) {
                 return call_user_func_array([$this, $method], $parameters);
             }
         }
+
         return parent::__call($method, $parameters);
     }
 
     public static function __callStatic($method, $parameters)
     {
-        $instance = (new static);
+        $instance = (new static());
+
         return call_user_func_array([$instance, $method], $parameters);
     }
 }
