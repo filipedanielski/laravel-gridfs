@@ -16,9 +16,9 @@ class GridfsTest extends TestCase
 
     public function testUpload()
     {
-        $stub = __DIR__ . '/Support/testfiles/test.png';
-        $name = Str::random(8) . '.png';
-        $path = sys_get_temp_dir() . '/' . $name;
+        $stub = __DIR__.'/Support/testfiles/test.png';
+        $name = Str::random(8).'.png';
+        $path = sys_get_temp_dir().'/'.$name;
 
         copy($stub, $path);
 

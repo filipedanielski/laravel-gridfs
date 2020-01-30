@@ -8,9 +8,9 @@ use Jenssegers\Mongodb\Eloquent\Model as BaseModel;
 
 abstract class Model extends BaseModel implements Responsable
 {
-    use Concerns\DownloadsFiles,
-        Concerns\HasBucket,
-        Concerns\UploadsFiles;
+    use Concerns\DownloadsFiles;
+    use Concerns\HasBucket;
+    use Concerns\UploadsFiles;
 
     /**
      * Indicates if the model should be timestamped.
@@ -24,10 +24,10 @@ abstract class Model extends BaseModel implements Responsable
      *
      * @var array
      */
-    protected $dates = [ 'uploadDate' ];
+    protected $dates = ['uploadDate'];
 
     /**
-     * Append a readable version of the length attribute 
+     * Append a readable version of the length attribute.
      *
      * @return string
      */
@@ -39,7 +39,7 @@ abstract class Model extends BaseModel implements Responsable
     /**
      * Create an HTTP response that represents the object.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
      */

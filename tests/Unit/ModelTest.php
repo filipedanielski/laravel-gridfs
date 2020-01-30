@@ -16,9 +16,9 @@ class ModelTest extends TestCase
 
     public function testUpload()
     {
-        $stub = __DIR__ . '/../Support/testfiles/test.png';
-        $name = Str::random(8) . '.png';
-        $path = sys_get_temp_dir() . '/' . $name;
+        $stub = __DIR__.'/../Support/testfiles/test.png';
+        $name = Str::random(8).'.png';
+        $path = sys_get_temp_dir().'/'.$name;
 
         copy($stub, $path);
 
@@ -33,23 +33,23 @@ class ModelTest extends TestCase
 
     public function testCreate()
     {
-        $stub = __DIR__ . '/../Support/testfiles/test.png';
-        $name = Str::random(8) . '.png';
-        $path = sys_get_temp_dir() . '/' . $name;
+        $stub = __DIR__.'/../Support/testfiles/test.png';
+        $name = Str::random(8).'.png';
+        $path = sys_get_temp_dir().'/'.$name;
 
         copy($stub, $path);
 
         $file = new UploadedFile($path, $name, 'image/png', filesize($path), null, true);
 
         Photo::create([
-            'file' => $file,
-            'filename' => $name,
-            'fake_user_id' => 2
+            'file'         => $file,
+            'filename'     => $name,
+            'fake_user_id' => 2,
         ]);
 
         $this->assertDatabaseHas('photos.files', [
-            'filename' => $name,
-            'metadata.fake_user_id' => 2
+            'filename'              => $name,
+            'metadata.fake_user_id' => 2,
         ]);
 
         unlink($path);

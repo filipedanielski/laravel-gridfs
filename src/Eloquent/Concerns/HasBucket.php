@@ -31,12 +31,12 @@ trait HasBucket
      */
     public function getTable()
     {
-        return $this->getBucket() . '.files';
+        return $this->getBucket().'.files';
     }
 
     /**
-     * Start a connection with the GridFS bucket
-     * 
+     * Start a connection with the GridFS bucket.
+     *
      * @return \Illuminate\Database\Connection
      */
     protected function connectToBucket()

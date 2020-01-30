@@ -11,6 +11,6 @@ class User extends Model
 
     public function photos()
     {
-        return $this->hasMany(Photo::class, "metadata.user_id");
+        return $this->hasMany(Photo::class, 'metadata.user_id');
     }
 }

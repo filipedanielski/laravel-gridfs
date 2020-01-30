@@ -13,6 +13,6 @@ class Photo extends Model
      * @var array
      */
     public $appends = [
-        'readableLength'
+        'readableLength',
     ];
 }

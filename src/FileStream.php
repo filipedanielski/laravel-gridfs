@@ -3,9 +3,6 @@
 namespace Filipedanielski\Gridfs;
 
 use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Support\Collection;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use ZipStream\ZipStream;
 
 class FileStream implements Responsable
 {
