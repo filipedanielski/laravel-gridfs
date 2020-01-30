@@ -2,14 +2,17 @@
 
 namespace Filipedanielski\Gridfs\Tests\Support\TestModels;
 
-use Filipedanielski\Gridfs\Gridfs;
-use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
+use Filipedanielski\Gridfs\Eloquent\Model;
 
-class Photo extends Eloquent
+class Photo extends Model
 {
-    use Gridfs;
-
     protected $connection = 'mongodb';
-    protected $collection = 'photos.files';
-    protected $bucket = 'photos';
+    protected static $unguarded = true;
+
+    /**
+     * @var array
+     */
+    public $appends = [
+        'readableLength'
+    ];
 }

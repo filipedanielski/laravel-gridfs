@@ -2,7 +2,7 @@
 
 namespace Filipedanielski\Gridfs\Tests;
 
-use Filipedanielski\Gridfs\Tests\Support\TestModels\Photo;
+use Filipedanielski\Gridfs\Tests\Support\TestModels\Document;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
@@ -10,7 +10,7 @@ class GridfsTest extends TestCase
 {
     public static function tearDownAfterClass(): void
     {
-        $bucket = Photo::connectToBucket();
+        $bucket = Document::connectToBucket();
         $bucket->drop();
     }
 
@@ -24,46 +24,46 @@ class GridfsTest extends TestCase
 
         $file = new UploadedFile($path, $name, 'image/png', filesize($path), null, true);
 
-        Photo::upload($file, [], $name);
+        Document::upload($file, [], $name);
 
-        $this->assertDatabaseHas('photos.files', ['filename' => $name]);
+        $this->assertDatabaseHas('documents.files', ['filename' => $name]);
 
         unlink($path);
     }
 
     public function testDownload()
     {
-        $photo = Photo::first();
+        $document = Document::first();
 
-        $download = $photo->download();
+        $download = $document->download();
 
         $this->assertTrue(preg_match('/(error|notice)/i', $download) === 0);
     }
 
     public function testDownloadById()
     {
-        $photo = Photo::searchOne(['length' => 842]);
+        $document = Document::searchOne(['length' => 842]);
 
-        $download = Photo::download($photo->_id);
+        $download = Document::download($document->_id);
 
         $this->assertTrue(preg_match('/(error|notice)/i', $download) === 0);
     }
 
     public function testZipDownload()
     {
-        $photos = Photo::search(['length' => 842]);
+        $documents = Document::search(['length' => 842]);
 
-        $download = Photo::downloadZip($photos);
+        $download = Document::downloadZip($documents);
 
         $this->assertTrue(preg_match('/(error|notice)/i', $download) === 0);
     }
 
     public function testRemove()
     {
-        $photo = Photo::searchOne(['length' => 842]);
+        $document = Document::searchOne(['length' => 842]);
 
-        Photo::remove($photo->_id);
+        Document::remove($document->_id);
 
-        $this->assertDatabaseMissing('photos.files', ['filename' => $photo->filename]);
+        $this->assertDatabaseMissing('documents.files', ['filename' => $document->filename]);
     }
 }

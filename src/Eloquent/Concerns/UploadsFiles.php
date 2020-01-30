@@ -2,6 +2,8 @@
 
 namespace Filipedanielski\Gridfs\Eloquent\Concerns;
 
+use Illuminate\Http\UploadedFile;
+
 trait UploadsFiles
 {
     /**
@@ -20,9 +22,37 @@ trait UploadsFiles
         $source = fopen($file->path(), 'rb');
 
         return $bucket->uploadFromStream(
-            $filename ?: $file->hashName(),
+            $filename ?? $file->hashName(),
             $source,
-            ($metadata != []) ? ['metadata' => $metadata] : []
+            filled($metadata) ? ['metadata' => $metadata] : []
         );
+    }
+
+    /**
+     * Save a new model and return the instance.
+     *
+     * @param  array  $attributes
+     * 
+     * @return \Filipedanielski\Gridfs\Eloquent\Model|$this
+     * 
+     * @throws \Exception
+     */
+    protected function create(array $attributes = [])
+    {
+        $attributes = collect($attributes);
+
+        if (!$attributes->has('file')) {
+            throw new Exception('A file attribute is required.');
+        }
+
+        $file = $attributes->pull('file');
+
+        if (!$file instanceof UploadedFile) {
+            throw new Exception('The file attribute must be a valid uploaded file.');
+        }
+
+        $filename = $attributes->pull('filename');
+
+        return $this->upload($file, $attributes->toArray(), $filename);
     }
 }
