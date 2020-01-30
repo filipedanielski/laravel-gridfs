@@ -33,11 +33,9 @@
         }
     },
     "autoload-dev": {
-        "classmap": [
-            "tests/TestCase.php",
-            "tests/models",
-            "tests/seeds"
-        ]
+        "psr-4": {
+            "Filipedanielski\\Gridfs\\Tests\\": "tests"
+        }
     },
     "extra": {
         "branch-alias": {

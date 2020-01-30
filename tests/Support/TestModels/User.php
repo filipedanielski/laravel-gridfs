@@ -1,5 +1,7 @@
 <?php
 
+namespace Filipedanielski\Gridfs\Tests\Support\TestModels;
+
 use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
 class User extends Eloquent

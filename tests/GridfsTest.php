@@ -1,5 +1,8 @@
 <?php
 
+namespace Filipedanielski\Gridfs\Tests;
+
+use Filipedanielski\Gridfs\Tests\Support\TestModels\Photo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
@@ -13,7 +16,7 @@ class GridfsTest extends TestCase
 
     public function testUpload()
     {
-        $stub = __DIR__ . '/stubs/test.png';
+        $stub = __DIR__ . '/Support/testfiles/test.png';
         $name = Str::random(8) . '.png';
         $path = sys_get_temp_dir() . '/' . $name;
 
