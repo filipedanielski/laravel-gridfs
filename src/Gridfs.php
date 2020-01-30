@@ -172,7 +172,7 @@ trait Gridfs
             ->withHeaders(
                 [
                     'Content-Type'              => 'application/octet-stream',
-                    'Content-Disposition'       => 'attachment; filename=' . $metadata->filename,
+                    'Content-Disposition'       => 'attachment; filename='.$metadata->filename,
                     'Content-Transfer-Encoding' => 'Binary',
                     'Content-Description'       => 'File Transfer',
                     'Pragma'                    => 'public',

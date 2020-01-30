@@ -9,10 +9,10 @@ trait UploadsFiles
     /**
      * Uploads a file to a GridFS bucket.
      *
-     * @param  \Illuminate\Http\UploadedFile  $file
-     * @param  array $metadata
-     * @param  string $filename
-     * 
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param array                         $metadata
+     * @param string                        $filename
+     *
      * @return \MongoDB\BSON\ObjectId
      */
     protected function upload($file, $metadata = [], $filename = null)
@@ -31,11 +31,11 @@ trait UploadsFiles
     /**
      * Save a new model and return the instance.
      *
-     * @param  array  $attributes
-     * 
-     * @return \Filipedanielski\Gridfs\Eloquent\Model|$this
-     * 
+     * @param array $attributes
+     *
      * @throws \Exception
+     *
+     * @return \Filipedanielski\Gridfs\Eloquent\Model|$this
      */
     protected function create(array $attributes = [])
     {

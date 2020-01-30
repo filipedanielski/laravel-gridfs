@@ -10,9 +10,9 @@ class RelationTest extends TestCase
 {
     public function testRelationCreate()
     {
-        $stub = __DIR__ . '/../Support/testfiles/test.png';
-        $name = Str::random(8) . '.png';
-        $path = sys_get_temp_dir() . '/' . $name;
+        $stub = __DIR__.'/../Support/testfiles/test.png';
+        $name = Str::random(8).'.png';
+        $path = sys_get_temp_dir().'/'.$name;
 
         copy($stub, $path);
 
@@ -22,13 +22,13 @@ class RelationTest extends TestCase
         $user->save();
 
         $user->photos()->create([
-            'file' => $file,
-            'filename' => $name
+            'file'     => $file,
+            'filename' => $name,
         ]);
 
         $this->assertDatabaseHas('photos.files', [
-            'filename' => $name,
-            'metadata.user_id' => $user->_id
+            'filename'         => $name,
+            'metadata.user_id' => $user->_id,
         ]);
 
         unlink($path);
