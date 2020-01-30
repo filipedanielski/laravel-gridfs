@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 class GridfsTest extends TestCase
 {
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $bucket = Photo::connectToBucket();
         $bucket->drop();
@@ -12,9 +13,9 @@ class GridfsTest extends TestCase
 
     public function testUpload()
     {
-        $stub = __DIR__.'/stubs/test.png';
-        $name = str_random(8).'.png';
-        $path = sys_get_temp_dir().'/'.$name;
+        $stub = __DIR__ . '/stubs/test.png';
+        $name = Str::random(8) . '.png';
+        $path = sys_get_temp_dir() . '/' . $name;
 
         copy($stub, $path);
 

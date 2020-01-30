@@ -2,6 +2,7 @@
 
 namespace Filipedanielski\Gridfs;
 
+use ZipStream\Option\Archive as ArchiveOptions;
 use ZipStream\ZipStream;
 
 trait Gridfs
@@ -74,7 +75,8 @@ trait Gridfs
             $metadata = $bucket->getFileDocumentForStream($stream);
         } else {
             $stream = $bucket->openDownloadStreamByName(
-                $filename, ['revision' => $revision]
+                $filename,
+                ['revision' => $revision]
             );
             $metadata = $bucket->getFileDocumentForStream($stream);
         }
@@ -89,7 +91,8 @@ trait Gridfs
         $bucket = $this->connectToBucket();
 
         $stream = $bucket->openDownloadStreamByName(
-            $filename, ['revision' => 0]
+            $filename,
+            ['revision' => 0]
         );
         $metadata = $bucket->getFileDocumentForStream($stream);
 
@@ -108,9 +111,12 @@ trait Gridfs
         $bucket = $this->connectToBucket();
 
         list($tmp, $zipstream) = $this->getTmpFileStream();
-        $zip = new ZipStream(null, [
-            ZipStream::OPTION_OUTPUT_STREAM => $zipstream,
-        ]);
+
+        $zipStreamOptions = new ArchiveOptions();
+        $zipStreamOptions->setOutputStream($zipstream);
+
+        // Create Zip Archive
+        $zip = new ZipStream('files.zip', $zipStreamOptions);
 
         $files = $cursor->toArray();
 
@@ -155,24 +161,26 @@ trait Gridfs
     private function getFileByRevision($bucket, $filename, $revision)
     {
         return $bucket->openDownloadStreamByName(
-            $filename, ['revision' => $revision]
+            $filename,
+            ['revision' => $revision]
         );
     }
 
     protected function prepareDownload($contents, $metadata)
     {
         return response($contents)
-            ->withHeaders([
-                'Content-Type'              => 'application/octet-stream',
-                'Content-Disposition'       => 'attachment; filename='.$metadata->filename,
-                'Content-Transfer-Encoding' => 'Binary',
-                'Content-Description'       => 'File Transfer',
-                'Pragma'                    => 'public',
-                'Expires'                   => '0',
-                'Cache-Control'             => 'must-revalidate',
-                'Content-Length'            => "{$metadata->length}",
-            ]
-        );
+            ->withHeaders(
+                [
+                    'Content-Type'              => 'application/octet-stream',
+                    'Content-Disposition'       => 'attachment; filename=' . $metadata->filename,
+                    'Content-Transfer-Encoding' => 'Binary',
+                    'Content-Description'       => 'File Transfer',
+                    'Pragma'                    => 'public',
+                    'Expires'                   => '0',
+                    'Cache-Control'             => 'must-revalidate',
+                    'Content-Length'            => "{$metadata->length}",
+                ]
+            );
     }
 
     /*
@@ -216,10 +224,10 @@ trait Gridfs
         return \Illuminate\Support\Facades\DB::connection(
             $this->connection ?: $this->app['config']['database.default']
         )
-        ->getMongoDB()
-        ->selectGridFSBucket(
-            ['bucketName' => $this->getBucketName()]
-        );
+            ->getMongoDB()
+            ->selectGridFSBucket(
+                ['bucketName' => $this->getBucketName()]
+            );
     }
 
     private function getBucketName()
