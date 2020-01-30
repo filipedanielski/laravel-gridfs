@@ -1,9 +1,15 @@
-.DS_Store
+build
+vendor
+.env
 phpunit.phar
-/vendor
+phpunit.xml
+.phpunit.result.cache
 composer.phar
 composer.lock
+.DS_Store
 *.sublime-project
 *.sublime-workspace
 *.project
 .idea/
+tests/Support/temp
+tests/temp
